@@ -9,6 +9,7 @@ __pycache__/
 !custom_nodes/example_node.py.example
 !custom_nodes/idle_unload.py
 extra_model_paths.yaml
+/DevDocs/
 /.vs
 .vscode/
 .idea/
