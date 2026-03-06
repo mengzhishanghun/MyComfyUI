@@ -2,10 +2,18 @@
 import subprocess
 import sys
 import os
+import socket
 import webbrowser
 import threading
 from PIL import Image, ImageDraw
 import pystray
+
+# 单实例锁：绑定固定端口，失败则说明已有实例运行
+_Lock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+try:
+    _Lock.bind(('127.0.0.1', 58188))
+except OSError:
+    sys.exit(0)
 
 COMFYUI_DIR = os.path.dirname(os.path.abspath(__file__))
 COMFYUI_URL = "http://127.0.0.1:8188"
