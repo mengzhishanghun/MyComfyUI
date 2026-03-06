@@ -38,6 +38,10 @@ def start_comfyui():
         '--listen', '0.0.0.0', '--port', '8188'
     ]
 
+    # 闲时自动释放模型（秒），由 idle_unload 插件读取
+    Env = os.environ.copy()
+    Env["COMFYUI_IDLE_TIMEOUT"] = "300"
+
     # 隐藏窗口启动
     startupinfo = subprocess.STARTUPINFO()
     startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -46,6 +50,7 @@ def start_comfyui():
     process = subprocess.Popen(
         args,
         cwd=COMFYUI_DIR,
+        env=Env,
         startupinfo=startupinfo,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
