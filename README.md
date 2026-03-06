@@ -2,7 +2,7 @@
 
 基于节点的 Stable Diffusion 可视化工作流编辑器。
 
-本仓库 fork 自 [comfyanonymous/ComfyUI](https://github.com/comfyanonymous/ComfyUI)，添加了托盘启动功能。
+本仓库 fork 自 [comfyanonymous/ComfyUI](https://github.com/comfyanonymous/ComfyUI)，添加了 ROCm 7.2 支持、托盘启动、闲时自动释放显存等功能。
 
 ## 环境配置
 
@@ -46,7 +46,7 @@ pip install --no-cache-dir ^
 ```bash
 pip install -r requirements.txt
 pip install -r manager_requirements.txt
-pip install pystray pillow
+pip install -r requirements_extra.txt
 ```
 
 5. **验证 GPU 识别**
@@ -60,10 +60,14 @@ python -c "import torch; print(torch.cuda.get_device_name(0))"
 
 ### 托盘启动（推荐）
 
-运行 `Start_ComfyUI_Tray.bat`，程序将在后台运行，任务栏显示托盘图标。
+运行 `Start_ComfyUI_Tray.bat`，程序将在后台运行，任务栏显示托盘图标。已内置单实例锁，重复启动会自动忽略。
 
 - **双击图标**：打开浏览器访问 ComfyUI
 - **右键菜单**：打开 ComfyUI / 重启服务 / 退出
+
+### 闲时自动释放显存
+
+内置 `idle_unload` 插件，空闲 5 分钟后自动卸载模型并释放显存。通过环境变量 `COMFYUI_IDLE_TIMEOUT` 配置超时秒数（默认 300，设为 0 禁用）。
 
 ### 命令行启动
 
@@ -88,6 +92,14 @@ python main.py --use-pytorch-cross-attention --force-fp16 --listen 0.0.0.0 --por
 
 ```
 %APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup
+```
+
+## 快速恢复环境
+
+已导出 `environment.yml`，可在新机器上一键恢复：
+
+```bash
+conda env create -f environment.yml
 ```
 
 ## 模型目录
