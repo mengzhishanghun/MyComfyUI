@@ -31,10 +31,10 @@ def start_comfyui():
     python_exe = sys.executable.replace('pythonw.exe', 'python.exe')
     main_py = os.path.join(COMFYUI_DIR, 'main.py')
 
-    # 启动参数
+    # 启动参数（ROCm 7.2 原生支持，无需 --directml）
     args = [
         python_exe, main_py,
-        '--directml', '--disable-xformers', '--force-fp16',
+        '--use-pytorch-cross-attention', '--force-fp16',
         '--listen', '0.0.0.0', '--port', '8188'
     ]
 

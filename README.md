@@ -9,35 +9,51 @@
 ### 前置条件
 
 - Windows 10/11
-- Python 3.10+（推荐使用 Miniconda）
-- AMD 显卡（使用 DirectML）
+- Python 3.12（Miniconda）
+- AMD Radeon RX 7000/9000 系列显卡
+- [AMD ROCm PyTorch 专用驱动 26.1.1+](https://www.amd.com/en/resources/support-articles/release-notes/RN-RAD-WIN-26-1-1.html)
 
 ### 安装步骤
 
 1. **创建 Conda 环境**
 
 ```bash
-conda create -n ComfyUI python=3.10 -y
-conda activate ComfyUI
+conda create -n ComfyUI_ROCm python=3.12 -y
+conda activate ComfyUI_ROCm
 ```
 
-2. **安装 PyTorch（AMD DirectML）**
+2. **安装 ROCm 7.2 SDK**
 
 ```bash
-pip install torch-directml
-pip install torchvision torchaudio
+pip install --no-cache-dir ^
+    https://repo.radeon.com/rocm/windows/rocm-rel-7.2/rocm_sdk_core-7.2.0.dev0-py3-none-win_amd64.whl ^
+    https://repo.radeon.com/rocm/windows/rocm-rel-7.2/rocm_sdk_devel-7.2.0.dev0-py3-none-win_amd64.whl ^
+    https://repo.radeon.com/rocm/windows/rocm-rel-7.2/rocm_sdk_libraries_custom-7.2.0.dev0-py3-none-win_amd64.whl ^
+    https://repo.radeon.com/rocm/windows/rocm-rel-7.2/rocm-7.2.0.dev0.tar.gz
 ```
 
-3. **安装依赖**
+3. **安装 PyTorch（ROCm 7.2）**
+
+```bash
+pip install --no-cache-dir ^
+    https://repo.radeon.com/rocm/windows/rocm-rel-7.2/torch-2.9.1%2Brocmsdk20260116-cp312-cp312-win_amd64.whl ^
+    https://repo.radeon.com/rocm/windows/rocm-rel-7.2/torchaudio-2.9.1%2Brocmsdk20260116-cp312-cp312-win_amd64.whl ^
+    https://repo.radeon.com/rocm/windows/rocm-rel-7.2/torchvision-0.24.1%2Brocmsdk20260116-cp312-cp312-win_amd64.whl
+```
+
+4. **安装 ComfyUI 依赖**
 
 ```bash
 pip install -r requirements.txt
+pip install -r manager_requirements.txt
+pip install pystray pillow
 ```
 
-4. **安装托盘程序依赖**
+5. **验证 GPU 识别**
 
 ```bash
-pip install pystray pillow
+python -c "import torch; print(torch.cuda.get_device_name(0))"
+# 预期输出: AMD Radeon RX 7900 XTX
 ```
 
 ## 启动方式
@@ -52,9 +68,19 @@ pip install pystray pillow
 ### 命令行启动
 
 ```bash
-conda activate ComfyUI
-python main.py --directml --listen 0.0.0.0 --port 8188
+conda activate ComfyUI_ROCm
+python main.py --use-pytorch-cross-attention --force-fp16 --listen 0.0.0.0 --port 8188
 ```
+
+### 启动参数说明
+
+| 参数 | 说明 |
+|------|------|
+| `--use-pytorch-cross-attention` | 使用 PyTorch 原生注意力（AMD ROCm 推荐） |
+| `--force-fp16` | 强制 FP16 精度，节省显存 |
+| `--listen 0.0.0.0` | 允许局域网访问 |
+| `--port 8188` | 服务端口 |
+| `--lowvram` | 低显存模式（可选） |
 
 ## 开机自启动
 
@@ -74,6 +100,11 @@ python main.py --directml --listen 0.0.0.0 --port 8188
 | ControlNet | `models/controlnet` |
 | Embeddings | `models/embeddings` |
 
+## 已知限制
+
+- RX 7900 XTX 不支持 FP8，可使用 BF16/FP16/INT8
+- ROCm 7.2 Windows 版仅支持推理，训练需使用 Linux
+
 ## 访问地址
 
 启动后访问：http://localhost:8188
@@ -81,5 +112,6 @@ python main.py --directml --listen 0.0.0.0 --port 8188
 ## 参考
 
 - [ComfyUI 官方仓库](https://github.com/comfyanonymous/ComfyUI)
-- [ComfyUI 示例](https://comfyanonymous.github.io/ComfyUI_examples/)
+- [AMD ROCm PyTorch 安装指南](https://rocm.docs.amd.com/projects/radeon-ryzen/en/latest/docs/install/installrad/windows/install-pytorch.html)
+- [ComfyUI AMD ROCm 支持公告](https://blog.comfy.org/p/official-amd-rocm-support-arrives)
 - [ComfyUI 文档](https://docs.comfy.org/)
