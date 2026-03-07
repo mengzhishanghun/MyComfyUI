@@ -60,8 +60,8 @@ def start_comfyui():
         cwd=COMFYUI_DIR,
         env=Env,
         startupinfo=startupinfo,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
         creationflags=subprocess.CREATE_NO_WINDOW
     )
 
